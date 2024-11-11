@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>College Data Display</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 20px;
+      }
+
+      h1 {
+        color: #333;
+      }
+
+      input[type="file"] {
+        margin: 20px 0;
+        padding: 10px;
+      }
+
+      table {
+        width: 100%;
+        max-width: 800px;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+      }
+
+      th {
+        background-color: #4caf50;
+        color: white;
+      }
+
+      tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      tr:hover {
+        background-color: #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>College Data</h1>
+    <input type="file" id="fileInput" accept=".xlsx" />
+    <table id="collegeTable">
+      <thead>
+        <tr>
+          <th>College Name</th>
+          <th>Fees</th>
+          <th>Department</th>
+          <th>Review</th>
+          <th>Cutoff</th>
+          <th>Placement</th>
+          <th>Ranking</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data rows will be inserted here by JavaScript -->
+      </tbody>
+    </table>
+
+    <!-- Include SheetJS library to read Excel files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script>
+      document
+        .getElementById("fileInput")
+        .addEventListener("change", handleFile, false);
+
+      function handleFile(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+
+          const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+          displayData(jsonData);
+        };
+
+        reader.readAsArrayBuffer(file);
+      }
+
+      function displayData(data) {
+        const tableBody = document
+          .getElementById("collegeTable")
+          .getElementsByTagName("tbody")[0];
+        tableBody.innerHTML = ""; // Clear existing data
+
+        data.slice(1).forEach((row) => {
+          const rowElement = document.createElement("tr");
+
+          row.slice(0, 7).forEach((cellData) => {
+            const cell = document.createElement("td");
+            cell.textContent = cellData || ""; // Populate cell
+            rowElement.appendChild(cell);
+          });
+
+          tableBody.appendChild(rowElement);
+        });
+      }
+    </script>
+  </body>
+</html>
